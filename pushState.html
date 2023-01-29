@@ -1,0 +1,41 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Push State</title>
+    <script type="text/javascript">
+      function onClickPushState() {
+        const url = new URL(window.location);
+        url.searchParams.set("foo", "bar");
+        console.log("click");
+        history.pushState(
+          {
+            a: 1,
+          },
+          "",
+          "#/bbb"
+        );
+      }
+      function onClickHrefChange() {
+        const currentHash = window.location.hash;
+        
+        // 触发 popstate ✅
+        if (currentHash == "#/xxx1") {
+          window.location.href = "#/xxx2";
+        } else {
+          window.location.href = "#/xxx1";
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <button id="btn1" onclick="onClickPushState()">pushState</button>
+    <button id="btn2" onclick="onClickHrefChange()">hrefChange</button>
+    <script type="text/javascript">
+      window.addEventListener("popstate", (ev) => {
+        console.log("popstate trigger ", ev);
+      });
+    </script>
+  </body>
+</html>

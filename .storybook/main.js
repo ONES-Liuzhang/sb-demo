@@ -11,6 +11,8 @@ module.exports = {
   ],
   "framework": "@storybook/react",
   "core": {
-    "builder": "@storybook/builder-webpack5"
-  }
+    "builder": "@storybook/builder-webpack5",
+    "disableTelemetry": true, // 关闭 Storybook 的匿名信息收集
+  },
+  "staticDirs": "public", // 静态文件位置
 }
