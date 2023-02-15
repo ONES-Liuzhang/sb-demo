@@ -17,7 +17,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "docs": "start-storybook --no-open -p 3006 -s public ",
-    "build-storybook": "build-storybook -s public"
+    "docs-build": "node doc-build/index.js"
   },
   "eslintConfig": {
     "extends": [
