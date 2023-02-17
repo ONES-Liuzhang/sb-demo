@@ -46,7 +46,7 @@ const createData = (rangeProps) => {
   columns.unshift({
     code: "id",
     name: "序号",
-    width: 100,
+    width: 50,
   });
 
   for (let i = 0; i < rowsNumber; i++) {

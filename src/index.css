@@ -21,3 +21,14 @@ code {
   background-color: brown !important;
   cursor: pointer;
 }
+
+/* 将 art-table 的宽度改为 auto，现在为 100% */
+.bigDataTable2 .art-table .art-table-header table,
+.bigDataTable2 .art-table .art-table-body table {
+  width: auto;
+}
+
+/* 为每个 col 添加默认宽度 */
+.bigDataTable2 col {
+  min-width: 50px;
+}
