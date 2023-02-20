@@ -22,7 +22,8 @@ code {
   cursor: pointer;
 }
 
-/* 将 art-table 的宽度改为 auto，现在为 100% */
+/* bigDataTable2 */
+/* 将 art-table 的宽度改为 auto */
 .bigDataTable2 .art-table .art-table-header table,
 .bigDataTable2 .art-table .art-table-body table {
   width: auto;
@@ -32,3 +33,10 @@ code {
 .bigDataTable2 col {
   min-width: 50px;
 }
+
+/* bigDataTable3 */
+.bigDataTable3 .art-table .art-table-header table,
+.bigDataTable3 .art-table .art-table-body table {
+  width: 100%;
+}
+

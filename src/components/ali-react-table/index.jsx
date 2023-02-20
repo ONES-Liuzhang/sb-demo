@@ -1,10 +1,12 @@
 import React from "react";
 import Box from "../box";
 import { dataSource, columns, createData } from "../../mock/table";
-import { BaseTable as AliReactTable, useTablePipeline, features } from "ali-react-table";
+import { useTablePipeline, features } from "ali-react-table";
+import AliReactTable from "./table";
 import { HeaderRender } from "./pipeline";
 import { cloneDeep } from "lodash-es";
 import DraggableRow from "./draggable-row";
+import { faker } from "@faker-js/faker";
 
 const Base = React.memo(() => {
   return <AliReactTable dataSource={dataSource} columns={[columns[0]]} />;
@@ -88,89 +90,129 @@ const BigDataTable = React.memo(() => {
   );
 });
 
-/** 大数据表格 - 支持固定宽度 */
+/** 大数据表格 - 支持固定宽度 auto*/
 const BigDataTable2 = React.memo(() => {
-  const { columns, dataSource } = createData({
-    rowsNumber: 200,
-    colsNumber: 3,
-  });
-  const pipeline = useTablePipeline();
-  pipeline.input({ columns, dataSource }).primaryKey("id");
-  pipeline.mapColumns((col) => {
-    col.minWidth = col.minWidth ?? 100;
-    return col;
-  });
-
-  return (
-    <div className="bigDataTable2">
-      <AliReactTable
-        style={{ height: 300, overflow: "auto" }}
-        useOuterBorder
-        virtual={{
-          horizontal: true,
-          vertical: true,
-          header: true,
-        }}
-        {...pipeline.getProps()}
-      />
-    </div>
-  );
-});
-
-/** 大数据表格 - 支持固定宽度 - hack */
-const BigDataTable3 = React.memo(() => {
-  const { columns, dataSource } = createData({
-    rowsNumber: 200,
-    colsNumber: 3,
-  });
-  const pipeline = useTablePipeline();
-  pipeline.input({ columns, dataSource }).primaryKey("id");
-  pipeline.mapColumns((col) => {
-    col.minWidth = col.minWidth ?? 100;
-    return col;
-  });
-
-  return (
-    <div className="bigDataTable2">
-      <AliReactTable
-        style={{ height: 300, overflow: "auto" }}
-        useOuterBorder
-        virtual={{
-          horizontal: true,
-          vertical: true,
-          header: true,
-        }}
-        {...pipeline.getProps()}
-      />
-    </div>
-  );
-});
-
-/** 拖拽 */
-const DraggableTable = () => {
-  const pipeline = useTablePipeline({
-    components: {
-      Row: DraggableRow,
+  const { columns, dataSource } = createData(
+    {
+      rowsNumber: 200,
+      colsNumber: 3,
     },
-  });
-  pipeline
-    .input({
-      dataSource,
-      columns,
-    })
-    .primaryKey("key");
+    {
+      mapRow: ({ colIndex, rowIndex, key }) => {
+        return key === "id" ? rowIndex + 1 : colIndex === 1 ? faker.lorem.text() : faker.word.noun();
+      },
+    }
+  );
 
+  const pipeline = useTablePipeline();
+  pipeline.input({ columns, dataSource }).primaryKey("id");
+  pipeline.mapColumns((col) => {
+    col.minWidth = col.minWidth ?? 100;
+    return col;
+  });
+
+  return (
+    <div className="bigDataTable2">
+      <AliReactTable
+        style={{ height: 300, overflow: "auto" }}
+        useOuterBorder
+        virtual={{
+          horizontal: true,
+          vertical: true,
+          header: true,
+        }}
+        {...pipeline.getProps()}
+      />
+    </div>
+  );
+});
+
+/** 大数据表格 - 支持固定宽度 - 100% */
+const BigDataTable3 = React.memo(() => {
+  const { columns, dataSource } = createData(
+    {
+      rowsNumber: 200,
+      colsNumber: 3,
+    },
+    {
+      mapRow: ({ colIndex, rowIndex, key }) => {
+        return key === "id" ? rowIndex + 1 : colIndex === 1 ? faker.lorem.text() : faker.word.noun();
+      },
+    }
+  );
+  // hack 添加一列 auto
+  columns.push({
+    name: "_hack 宽度自适应列",
+    code: "_hack",
+    width: "auto",
+  });
+  const pipeline = useTablePipeline();
+  pipeline.input({ columns, dataSource }).primaryKey("id");
+  pipeline.mapColumns((col) => {
+    col.minWidth = col.minWidth ?? 100;
+    return col;
+  });
+
+  return (
+    <div className="bigDataTable3">
+      {/* <button onClick={onBtnTrigger}>切换列配置</button> */}
+      <AliReactTable
+        style={{ height: 300, overflow: "auto" }}
+        useOuterBorder
+        virtual={{
+          horizontal: true,
+          vertical: true,
+          header: true,
+        }}
+        {...pipeline.getProps()}
+      />
+    </div>
+  );
+});
+
+/** 列宽拖拽 */
+const ColumnDraggableTable = () => {
+  const { columns, dataSource } = React.useRef(
+    createData({
+      rowsNumber: 10,
+      colsNumber: 10,
+    })
+  ).current;
+  const pipeline = useTablePipeline()
+    .input({ columns, dataSource })
+    .use(
+      features.columnResize({
+        fallbackSize: 120,
+        handleBackground: "#ddd",
+        handleHoverBackground: "#aaa",
+        handleActiveBackground: "#89bff7",
+      })
+    );
+
+  return <AliReactTable {...pipeline.getProps()} />;
+};
+
+const RowDraggableTable = () => {
+  const { columns, dataSource } = React.useRef(
+    createData({
+      rowsNumber: 300,
+      colsNumber: 10,
+    })
+  ).current;
+  const pipeline = useTablePipeline().input({ columns, dataSource });
+  const tableProps = pipeline.getProps();
+
+  console.log(tableProps);
   return (
     <AliReactTable
-      {...pipeline.getProps()}
+      style={{ height: "300px", overflow: "auto" }}
+      {...tableProps}
       components={{
         Row: DraggableRow,
       }}
     />
   );
 };
-
-/** 默认 Filter */
 
 /**
  * 自定义表头 ❌ 无法实现
@@ -195,8 +237,6 @@ const CustomHeaderTable = () => {
   return <AliReactTable {...pipeline.getProps()} />;
 };
 
-/**  */
-
 const AliReactTablePage = () => {
   return (
     <div>
@@ -213,19 +253,42 @@ const AliReactTablePage = () => {
         <BigDataTable />
       </Box>
       <Box
-        title="大数据表格 - 支持固定宽度"
+        title="大数据表格 - 支持固定宽度 auto"
         desc={`
-        1. Table 宽度配置为 auto（目前为 100%）
-        2. 为所有 col 都配置 min-width，可配置 defaultCellWidth（否则 Table 无法撑开 table-wrapper）
+        1. Table 宽度配置为 auto，整体宽度由外部容器 table-wrapper 撑开
+        2. 为所有 col 都配置 min-width，可配置 defaultCellWidth（否则 Table 的默认最大宽度为 100%,无法撑开 table-wrapper）
         3. 如果要固定某列的宽度，则需要配置 width 和 min-width，并且它们应该配置相同的值
+
+        （第一列为固定宽度，它配置了 width: 50px; min-width: 50px; 表格宽度减小时它不会按比例减小宽度）
       `}
       >
         <BigDataTable2 />
       </Box>
-      <Box title="拖拽">
-        <DraggableTable />
+      <Box
+        title="大数据表格 - 支持固定宽度 100%"
+        desc={`
+        1. Table 宽度配置为 100%
+        2. 为所有 col 都配置 min-width，可配置 defaultCellWidth（否则 Table 无法撑开 table-wrapper）
+        3. 如果要固定某列的宽度，则需要配置 width 和 min-width，并且它们应该配置相同的值
+      `}
+      >
+        <BigDataTable3 />
       </Box>
-      <Box title="自定义表头">
+      <Box title="列宽可拖拽">
+        <ColumnDraggableTable />
+      </Box>
+      <Box title="行拖拽">
+        <RowDraggableTable />
+      </Box>
+      <Box
+        title="自定义表头 - headerRender"
+        desc={`
+        无法实现整行自定义，需要修改底层
+          1. 设置 hasHeader 为 false
+          2. newHeader = headerRender()
+          3. 处理新 Header 横向滚动条逻辑
+      `}
+      >
         <CustomHeaderTable />
       </Box>
     </div>

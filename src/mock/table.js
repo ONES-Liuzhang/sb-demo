@@ -29,14 +29,16 @@ const columns = [
   { code: "t", name: "最后更新时间", width: 180 },
 ];
 
-const createData = (rangeProps) => {
+const createData = (rangeProps, options = {}) => {
   const { rowsNumber, colsNumber } = rangeProps;
+  const { mapColumn, mapRow } = options;
   const columns = [];
   const dataSource = [];
   for (let i = 0; i < colsNumber; i++) {
     const code = faker.word.noun();
     const name = faker.word.noun();
-    const colMap = {
+    let colMap = mapColumn && mapColumn({ code, name, colIndex: i });
+    colMap = colMap || {
       code,
       name,
       width: 150,
@@ -52,10 +54,22 @@ const createData = (rangeProps) => {
   for (let i = 0; i < rowsNumber; i++) {
     const row = {};
     for (let j = 0; j < columns.length; j++) {
-      const key = columns[j].code;
-      row[key] = key === "id" ? i + 1 : faker.word.noun();
+      if (columns[j]?.code) {
+        const key = columns[j].code;
+        const params = {
+          colIndex: j,
+          rowIndex: i,
+          key,
+        };
+        row[key] = mapRow && mapRow(params);
+        row[key] = row[key] || defaultMapRow(params);
+      }
     }
     dataSource.push(row);
+  }
+
+  function defaultMapRow({ colIndex, rowIndex, key }) {
+    return key === "id" ? rowIndex + 1 : faker.word.noun();
   }
 
   return {
